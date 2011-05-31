@@ -3,6 +3,7 @@ import org.springframework.security.crypto.encrypt.Encryptors
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository
 import org.springframework.social.connect.support.ConnectionFactoryRegistry
 import org.springframework.social.twitter.connect.TwitterConnectionFactory
+import org.springframework.social.facebook.connect.FacebookConnectionFactory
 
 class SpringSocialGrailsPlugin {
     // the plugin version
@@ -33,13 +34,31 @@ Spring Social plugin.
     }
 
     def doWithSpring = {
-        //def facebook = new FacebookConnectionFactory(config.facebook.appId, config.facebook.appSecret)
+        //
         //def tripit = new TripItConnectionFactory(config.tripit.consumerKey, config.tripit.consumerSecret)
         def config = SpringSocialUtils.config
         def twitterCK = config.twitter.consumerKey ?: ''
         def twitterCS = config.twitter.consumerSecret
-        if(!twitterCK) {
+        def twitterCF
+        def springSocialConnectionFactories = []
+
+        if(twitterCK) {
+            println "[SpringSocial] INFO: Configuring Twitter"
+            twitterCF = new TwitterConnectionFactory(twitterCK, twitterCS)
+            springSocialConnectionFactories << twitterCF
+        } else {
             println "[SpringSocial] WARNING: Twitter not configured"
+        }
+
+        def facebookAppId = config.facebook.appId ?: ''
+        def facebookAS = config.facebook.appSecret
+
+        if(facebookAppId) {
+            println "[SpringSocial] INFO: Configuring Facebook"
+            def facebookCF = new FacebookConnectionFactory(facebookAppId, facebookAS)
+            springSocialConnectionFactories << facebookCF
+        } else {
+            println "[SpringSocial] WARNING: Facebook not configured"
         }
 
         xmlns context: "http://www.springframework.org/schema/context"
@@ -47,8 +66,7 @@ Spring Social plugin.
 
 
         connectionFactoryLocator(ConnectionFactoryRegistry) {
-            //connectionFactories = [twitter, facebook, tripit]
-            connectionFactories = [new TwitterConnectionFactory(twitterCK, twitterCS)]
+            connectionFactories =  springSocialConnectionFactories
         }
 
         textEncryptor(Encryptors) { bean ->
