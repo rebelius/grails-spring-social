@@ -17,10 +17,15 @@ springsocial {
     postSignInUri = "/"
     postDisconnectUri = "/"
 
+    ss_oauth_return_url = "/"
+
     twitter.page.connect = "/springsocial/twitter/connect"
     twitter.page.connectedHome = "/springsocial/twitter/index"
     twitter.page.timeLine = "/springsocial/twitter/timeline"
     twitter.page.profiles = "/springsocial/twitter/profiles"
     twitter.page.directMessages = "/springsocial/twitter/messages"
     twitter.page.trends = "/springsocial/twitter/trends"
+
+    facebook.page.connect = "/springsocial/facebook/connect"
+    facebook.page.connectedHome = "/springsocial/facebook/index"
 }

@@ -20,6 +20,9 @@ class SpringSocialUrlMappings {
             controller = 'springSocialConnect'
             action = [GET: "oauthCallback", POST: 'withProvider', DELETE: "disconnect",]
         }
-
+        name springSocialSignIn: "/sssignin/${providerId}" {
+            controller = 'springSocialProviderSignIn'
+            action = [GET: "oauthCallback", POST: 'withProvider', DELETE: "disconnect",]
+        }
     }
 }

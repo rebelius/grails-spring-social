@@ -59,9 +59,9 @@ class SpringSocialConnectController {
             redirect url: authorizeUrl
         } else if (connectionFactory instanceof OAuth2ConnectionFactory) {
             def oauth2Ops = connectionFactory.getOAuthOperations()
-            def authorizeUrl = oauth2Ops.buildAuthorizeUrl(GrantType.AUTHORIZATION_CODE, new OAuth2Parameters(url, request.getParameter("scope")))
-            //redirect(url: provider.getOAuthOperations().buildAuthorizeUrl(callBackUrl(params.providerId), params.scope))
+            String authorizeUrl = oauth2Ops.buildAuthorizeUrl(GrantType.AUTHORIZATION_CODE, new OAuth2Parameters(url, request.getParameter("scope")))
 
+            //redirect(url: provider.getOAuthOperations().buildAuthorizeUrl(callBackUrl(params.providerId), params.scope))
             redirect url: authorizeUrl
         } else {
             render "return handleConnectToCustomConnectionFactory(connectionFactory, request);"
