@@ -81,9 +81,9 @@ class SpringSocialConnectController {
         if (oauth_token) {
             def connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);
             def verifier = params.oauth_verifier
-            def accessToken = connectionFactory.getOAuthOperations().exchangeForAccessToken(new AuthorizedRequestToken(extractCachedRequestToken(session), verifier), null);
+            def accessToken = connectionFactory.getOAuthOperations().exchangeForAccessToken(new AuthorizedRequestToken(extractCachedRequestToken(session), verifier), null)
             def connection = connectionFactory.createConnection(accessToken)
-            addConnection(session, connectionFactory, connection);
+            addConnection(session, connectionFactory, connection)
             redirect(url: handleSignIn(connection, session))
         } else if (code) {
             render "providerId: ${providerId}, pam: ${pam}"
@@ -108,7 +108,7 @@ class SpringSocialConnectController {
     private String handleSignIn(connection, session) {
         String localUserId = usersConnectionRepository.findUserIdWithConnection(connection)
         if (localUserId == null) {
-            def signInAttempt = new ProviderSignInAttempt(connection, connectionFactoryLocatorProvider, connectionRepositoryProvider);
+            def signInAttempt = new ProviderSignInAttempt(connection, connectionFactoryLocatorProvider, connectionRepositoryProvider)
             session.setAttribute(ProviderSignInAttempt.SESSION_ATTRIBUTE, signInAttempt)
         }
         g.createLink(uri: SpringSocialUtils.config.postSignInUri)
