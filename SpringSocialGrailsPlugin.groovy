@@ -4,6 +4,7 @@ import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository
 import org.springframework.social.connect.support.ConnectionFactoryRegistry
 import org.springframework.social.twitter.connect.TwitterConnectionFactory
 import org.springframework.social.facebook.connect.FacebookConnectionFactory
+import grails.plugins.springsocial.SpringSecuritySigninService
 
 class SpringSocialGrailsPlugin {
     // the plugin version
@@ -75,8 +76,7 @@ Spring Social plugin.
 
         usersConnectionRepository(JdbcUsersConnectionRepository, ref('dataSource'), ref('connectionFactoryLocator'), ref('textEncryptor'))
 
-
-
+        signInService(SpringSecuritySigninService)
     }
 
     def doWithDynamicMethods = { ctx ->
