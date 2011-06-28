@@ -39,21 +39,15 @@ grails.project.dependency.resolution = {
         runtime "org.grails.plugins:spring-security-core:1.1.2"
     }
     dependencies {
-        def springSocialVersion = "1.0.0.M3"
+        def springSocialVersion = "1.0.0.RC1"
 
         runtime("org.springframework.social:spring-social-core:${springSocialVersion}") { transitive = false }
         runtime("org.springframework.social:spring-social-web:${springSocialVersion}") { transitive = false }
         runtime("org.springframework.social:spring-social-facebook:${springSocialVersion}") { transitive = false }
-        runtime("org.springframework.social:spring-social-tripit:${springSocialVersion}") { transitive = false }
         runtime("org.springframework.social:spring-social-twitter:${springSocialVersion}") { transitive = false }
-        runtime("org.springframework.social:spring-social-github:${springSocialVersion}") { transitive = false }
-        runtime("org.springframework.social:spring-social-gowalla:${springSocialVersion}") { transitive = false }
-        runtime("org.springframework.social:spring-social-linkedin:${springSocialVersion}") { transitive = false }
 
         runtime("org.springframework.security:spring-security-crypto:3.1.0.RC1") { transitive = false }
-
         runtime("javax.inject:javax.inject:1")
-
         compile 'org.codehaus.jackson:jackson-mapper-asl:1.7.3'
     }
 }

@@ -19,7 +19,6 @@ import javax.inject.Provider
 import org.springframework.social.connect.ConnectionFactoryLocator
 import org.springframework.social.connect.ConnectionRepository
 import org.springframework.social.connect.DuplicateConnectionException
-import org.springframework.social.connect.signin.web.ProviderSignInAttempt
 import org.springframework.social.connect.support.OAuth1ConnectionFactory
 import org.springframework.social.connect.support.OAuth2ConnectionFactory
 import org.springframework.social.oauth1.AuthorizedRequestToken
@@ -28,6 +27,7 @@ import org.springframework.social.oauth1.OAuth1Version
 import org.springframework.social.oauth1.OAuthToken
 import org.springframework.social.oauth2.GrantType
 import org.springframework.social.oauth2.OAuth2Parameters
+import org.springframework.social.connect.web.ProviderSignInAttempt
 
 class SpringSocialConnectController {
 

@@ -16,12 +16,12 @@ package grails.plugins.springsocial.facebook
 
 import javax.inject.Inject
 import javax.inject.Provider
-import org.springframework.social.facebook.api.FacebookApi
 import grails.plugins.springsocial.SpringSocialUtils
+import org.springframework.social.facebook.api.Facebook
 
 class SpringSocialFacebookController {
     @Inject
-    private Provider<FacebookApi> facebookApiProvider
+    private Provider<Facebook> facebookApiProvider
 
     def index = {
 
@@ -39,7 +39,7 @@ class SpringSocialFacebookController {
         getFacebookApi()
     }
 
-    private FacebookApi getFacebookApi() {
+    private Facebook getFacebookApi() {
         facebookApiProvider.get()
     }
 }

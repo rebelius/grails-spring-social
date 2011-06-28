@@ -17,14 +17,14 @@ package grails.plugins.springsocial.twitter
 import grails.plugins.springsocial.SpringSocialUtils
 import javax.inject.Inject
 import javax.inject.Provider
-import org.springframework.social.twitter.api.TwitterApi
+import org.springframework.social.twitter.api.Twitter
 
 class SpringSocialTwitterController {
 
     def springSecurityService
 
     @Inject
-    Provider<TwitterApi> twitterApiProvider
+    Provider<Twitter> twitterApiProvider
 
     def index = {
         if (isConnected()) {
@@ -119,7 +119,7 @@ class SpringSocialTwitterController {
         getTwitterApi()
     }
 
-    private TwitterApi getTwitterApi() {
+    private Twitter getTwitterApi() {
         twitterApiProvider.get()
     }
 }

@@ -29,8 +29,8 @@ import org.springframework.social.oauth1.OAuthToken
 import org.springframework.social.oauth2.GrantType
 import org.springframework.social.oauth2.OAuth2Parameters
 import org.springframework.social.connect.Connection
-import org.springframework.social.connect.signin.web.ProviderSignInAttempt
 import org.springframework.web.context.request.WebRequest
+import org.springframework.social.connect.web.ProviderSignInAttempt
 
 class SpringSocialProviderSignInController {
     @Inject
@@ -118,8 +118,7 @@ class SpringSocialProviderSignInController {
             signInService.signIn(localUserId)
         }
         session.ss_last_user_profile = connection.fetchUserProfile()
-        def postSignInUri = session.ss_oauth_return_url ?: SpringSocialUtils.config.postSignInUri
-        println "redirecting to: $postSignInUri"
+        def postSignInUri = session.ss_oauth_return_url ?: g.createLink(uri: SpringSocialUtils.config.postSignInUri, absolute: true)
         postSignInUri
     }
 }
