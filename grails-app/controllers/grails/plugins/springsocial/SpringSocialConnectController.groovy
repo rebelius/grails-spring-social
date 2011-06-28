@@ -28,6 +28,8 @@ import org.springframework.social.oauth1.OAuthToken
 import org.springframework.social.oauth2.GrantType
 import org.springframework.social.oauth2.OAuth2Parameters
 import org.springframework.social.connect.web.ProviderSignInAttempt
+import org.springframework.social.connect.web.ConnectSupport
+import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 
 class SpringSocialConnectController {
 
@@ -36,6 +38,8 @@ class SpringSocialConnectController {
     def connectionFactoryLocator
     def usersConnectionRepository
 
+    def webSupport = new ConnectSupport();
+
     @Inject
     Provider<ConnectionFactoryLocator> connectionFactoryLocatorProvider
     @Inject
@@ -43,29 +47,12 @@ class SpringSocialConnectController {
 
     static allowedMethods = [withProvider: 'POST']
 
-    def withProvider = {
+    def connect = {
         def providerId = params.providerId
-
         def connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId)
-        def url = callbackUrl(providerId)
-
-        if (connectionFactory instanceof OAuth1ConnectionFactory) {
-            def oauth1Ops = connectionFactory.getOAuthOperations()
-            def requestToken = oauth1Ops.fetchRequestToken(url, null)
-            session.oauthToken = requestToken
-
-            def authorizeUrl = oauth1Ops.buildAuthorizeUrl(requestToken.getValue(), oauth1Ops.getVersion() == OAuth1Version.CORE_10 ? new OAuth1Parameters(url) : OAuth1Parameters.NONE)
-
-            redirect url: authorizeUrl
-        } else if (connectionFactory instanceof OAuth2ConnectionFactory) {
-            def oauth2Ops = connectionFactory.getOAuthOperations()
-            String authorizeUrl = oauth2Ops.buildAuthorizeUrl(GrantType.AUTHORIZATION_CODE, new OAuth2Parameters(url, request.getParameter("scope")))
-
-            //redirect(url: provider.getOAuthOperations().buildAuthorizeUrl(callBackUrl(params.providerId), params.scope))
-            redirect url: authorizeUrl
-        } else {
-            render "return handleConnectToCustomConnectionFactory(connectionFactory, request);"
-        }
+        def url = webSupport.buildOAuthUrl(connectionFactory, new GrailsWebRequest(request, response, servletContext))
+        println "redirecting to: ${url}"
+        redirect url: url
     }
 
     String callbackUrl(provider) {
