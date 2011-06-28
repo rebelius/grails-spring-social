@@ -1,10 +1,10 @@
+import grails.plugins.springsocial.SpringSecuritySigninService
 import grails.plugins.springsocial.SpringSocialUtils
 import org.springframework.security.crypto.encrypt.Encryptors
 import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository
 import org.springframework.social.connect.support.ConnectionFactoryRegistry
-import org.springframework.social.twitter.connect.TwitterConnectionFactory
 import org.springframework.social.facebook.connect.FacebookConnectionFactory
-import grails.plugins.springsocial.SpringSecuritySigninService
+import org.springframework.social.twitter.connect.TwitterConnectionFactory
 
 class SpringSocialGrailsPlugin {
     // the plugin version
@@ -41,12 +41,16 @@ Spring Social plugin.
         def twitterCK = config.twitter.consumerKey ?: ''
         def twitterCS = config.twitter.consumerSecret
         def twitterCF
-        def springSocialConnectionFactories = []
 
-        if(twitterCK) {
+        connectionFactoryLocator(ConnectionFactoryRegistry) {
+        }
+
+        def cfl = ref("connectionFactoryLocator")
+
+        if (twitterCK) {
             println "[SpringSocial] INFO: Configuring Twitter"
             twitterCF = new TwitterConnectionFactory(twitterCK, twitterCS)
-            springSocialConnectionFactories << twitterCF
+            cfl.addConnectionFactory(twitterCF)
         } else {
             println "[SpringSocial] WARNING: Twitter not configured"
         }
@@ -54,21 +58,16 @@ Spring Social plugin.
         def facebookAppId = config.facebook.appId ?: ''
         def facebookAS = config.facebook.appSecret
 
-        if(facebookAppId) {
+        if (facebookAppId) {
             println "[SpringSocial] INFO: Configuring Facebook"
             def facebookCF = new FacebookConnectionFactory(facebookAppId, facebookAS)
-            springSocialConnectionFactories << facebookCF
+            cfl.addConnectionFactory(facebookCF)
         } else {
             println "[SpringSocial] WARNING: Facebook not configured"
         }
 
         xmlns context: "http://www.springframework.org/schema/context"
         context.'component-scan'('base-package': "grails.plugins.springsocial.config")
-
-
-        connectionFactoryLocator(ConnectionFactoryRegistry) {
-            connectionFactories =  springSocialConnectionFactories
-        }
 
         textEncryptor(Encryptors) { bean ->
             bean.factoryMethod = "noOpText"
