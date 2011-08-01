@@ -14,38 +14,26 @@
  */
 package grails.plugins.springsocial
 
-import javax.inject.Inject
-import javax.inject.Provider
-import org.springframework.social.connect.ConnectionFactoryLocator
-import org.springframework.social.connect.ConnectionRepository
-import org.springframework.social.connect.DuplicateConnectionException
-import org.springframework.social.connect.support.OAuth1ConnectionFactory
-import org.springframework.social.connect.support.OAuth2ConnectionFactory
-import org.springframework.social.oauth1.AuthorizedRequestToken
-import org.springframework.social.oauth1.OAuth1Parameters
-import org.springframework.social.oauth1.OAuth1Version
-import org.springframework.social.oauth1.OAuthToken
-import org.springframework.social.oauth2.GrantType
-import org.springframework.social.oauth2.OAuth2Parameters
-import org.springframework.social.connect.web.ProviderSignInAttempt
-import org.springframework.social.connect.web.ConnectSupport
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
+import org.springframework.social.connect.DuplicateConnectionException
+import org.springframework.social.connect.web.ConnectSupport
+import org.springframework.social.connect.web.ProviderSignInAttempt
+import org.springframework.social.oauth1.OAuthToken
+import org.springframework.web.context.request.RequestAttributes
+import org.springframework.social.connect.support.OAuth2ConnectionFactory
+import org.springframework.social.connect.support.OAuth1ConnectionFactory
 
 class SpringSocialConnectController {
 
     private static final String DUPLICATE_CONNECTION_EXCEPTION_ATTRIBUTE = "_duplicateConnectionException"
+    private static final String DUPLICATE_CONNECTION_ATTRIBUTE = "social.addConnection.duplicate"
 
     def connectionFactoryLocator
-    def usersConnectionRepository
+    def connectionRepository
 
     def webSupport = new ConnectSupport();
 
-    @Inject
-    Provider<ConnectionFactoryLocator> connectionFactoryLocatorProvider
-    @Inject
-    Provider<ConnectionRepository> connectionRepositoryProvider
-
-    static allowedMethods = [withProvider: 'POST']
+    static allowedMethods = [connect: 'POST', oauthCallback: 'GET', disconnect: 'DELETE']
 
     def connect = {
         def providerId = params.providerId
@@ -55,25 +43,23 @@ class SpringSocialConnectController {
         redirect url: url
     }
 
-    String callbackUrl(provider) {
-        g.createLink(mapping: 'springSocialConnect', params: [providerId: provider], absolute: true)
-    }
-
     def oauthCallback = {
         def providerId = params.providerId
         def oauth_token = params.oauth_token
         def code = params.code
-        def pam = oauth_token ?: code
+        def nativeWebRequest = new GrailsWebRequest(request, response, servletContext)
 
         if (oauth_token) {
-            def connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId);
-            def verifier = params.oauth_verifier
-            def accessToken = connectionFactory.getOAuthOperations().exchangeForAccessToken(new AuthorizedRequestToken(extractCachedRequestToken(session), verifier), null)
-            def connection = connectionFactory.createConnection(accessToken)
-            addConnection(session, connectionFactory, connection)
-            redirect(url: handleSignIn(connection, session))
+            OAuth1ConnectionFactory<?> connectionFactory = (OAuth1ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
+            def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
+            addConnection(connection, connectionFactory, request)
+            render "OAuth1ConnectionFactory"
+
         } else if (code) {
-            render "providerId: ${providerId}, pam: ${pam}"
+            OAuth2ConnectionFactory<?> connectionFactory = (OAuth2ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
+            def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
+            addConnection(connection, connectionFactory, request)
+            render "OAuth2ConnectionFactory"
         }
     }
 
@@ -83,12 +69,12 @@ class SpringSocialConnectController {
         redirect(uri: SpringSocialUtils.config.postDisconnectUri)
     }
 
-    private void addConnection(session, connectionFactory, connection) {
+    private void addConnection(connection, connectionFactory, request) {
         try {
-            getConnectionRepository().addConnection(connection)
+            connectionRepository.addConnection(connection)
             //postConnect(connectionFactory, connection, request)
         } catch (DuplicateConnectionException e) {
-            session.addAttribute(DUPLICATE_CONNECTION_EXCEPTION_ATTRIBUTE, e)
+            request.setAttribute(DUPLICATE_CONNECTION_ATTRIBUTE, e, RequestAttributes.SCOPE_SESSION);
         }
     }
 
@@ -107,7 +93,4 @@ class SpringSocialConnectController {
         requestToken
     }
 
-    private ConnectionRepository getConnectionRepository() {
-        connectionRepositoryProvider.get()
-    }
 }
