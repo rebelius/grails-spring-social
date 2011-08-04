@@ -36,6 +36,6 @@ class ConnectionRepositoryConfig {
         if (!authentication) {
             throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in")
         }
-        usersConnectionRepository.createConnectionRepository(principal.getName())
+        usersConnectionRepository.createConnectionRepository(authentication.getName())
     }
 }
