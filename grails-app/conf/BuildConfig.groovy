@@ -46,7 +46,7 @@ grails.project.dependency.resolution = {
         runtime("org.springframework.social:spring-social-facebook:${springSocialVersion}") { transitive = false }
         runtime("org.springframework.social:spring-social-twitter:${springSocialVersion}") { transitive = false }
 
-        runtime("org.springframework.security:spring-security-crypto:3.1.0.RC1") { transitive = false }
+        runtime("org.springframework.security:spring-security-crypto:3.1.0.RC2.crypto") { transitive = false }
         runtime("javax.inject:javax.inject:1")
         compile 'org.codehaus.jackson:jackson-mapper-asl:1.7.3'
     }
