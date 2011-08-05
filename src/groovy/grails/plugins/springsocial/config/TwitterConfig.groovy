@@ -14,6 +14,7 @@
  */
 package grails.plugins.springsocial.config
 
+import grails.plugins.springsocial.SpringSocialUtils
 import javax.inject.Inject
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -26,8 +27,6 @@ import org.springframework.social.connect.support.ConnectionFactoryRegistry
 import org.springframework.social.twitter.api.Twitter
 import org.springframework.social.twitter.api.impl.TwitterTemplate
 import org.springframework.social.twitter.connect.TwitterConnectionFactory
-import grails.plugins.springsocial.SpringSocialUtils
-import org.codehaus.groovy.grails.commons.ApplicationHolder
 
 @Configuration
 class TwitterConfig {
@@ -38,7 +37,10 @@ class TwitterConfig {
 
     @Bean
     String foo() {
-        ((ConnectionFactoryRegistry) connectionFactoryLocator).addConnectionFactory(new TwitterConnectionFactory("mcBxpCFGwS9gW5NbF4AZZg", "q91y7MQwcQVbugnrMXlc83YupMjZzuEvM5o0XIiSupI"))
+        def twitterConfig = SpringSocialUtils.config.twitter
+        def consumerKey = twitterConfig.consumerKey
+        def consumerSecret = twitterConfig.consumerSecret
+        ((ConnectionFactoryRegistry) connectionFactoryLocator).addConnectionFactory(new TwitterConnectionFactory(consumerKey, consumerSecret))
         "jajajaj"
     }
 
