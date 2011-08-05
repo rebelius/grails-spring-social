@@ -14,16 +14,14 @@
  */
 package grails.plugins.springsocial
 
+import grails.plugins.springsocial.connect.web.GrailsConnectSupport
 import org.codehaus.groovy.grails.web.servlet.mvc.GrailsWebRequest
 import org.springframework.social.connect.DuplicateConnectionException
-import org.springframework.social.connect.web.ConnectSupport
+import org.springframework.social.connect.support.OAuth1ConnectionFactory
+import org.springframework.social.connect.support.OAuth2ConnectionFactory
 import org.springframework.social.connect.web.ProviderSignInAttempt
 import org.springframework.social.oauth1.OAuthToken
 import org.springframework.web.context.request.RequestAttributes
-import org.springframework.social.connect.support.OAuth2ConnectionFactory
-import org.springframework.social.connect.support.OAuth1ConnectionFactory
-import javax.servlet.http.HttpServletRequest
-import grails.plugins.springsocial.connect.web.GrailsConnectSupport
 
 class SpringSocialConnectController {
 
@@ -51,16 +49,16 @@ class SpringSocialConnectController {
         def oauth_token = params.oauth_token
         def code = params.code
         def nativeWebRequest = new GrailsWebRequest(request, response, servletContext)
+        def uriRedirect = session.ss_oauth_redirect_callback
+        def config = SpringSocialUtils.config.get(providerId)
+        def uri = uriRedirect ?: config.page.connectedHome
 
         if (oauth_token) {
             OAuth1ConnectionFactory<?> connectionFactory = (OAuth1ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
             def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
             addConnection(connection, connectionFactory, request)
-            def config =  SpringSocialUtils.config.get(providerId)
-            def uri = config.page.connectedHome
             redirect(uri: uri)
         } else if (code) {
-            println "Usanso code ${code}"
             OAuth2ConnectionFactory<?> connectionFactory = (OAuth2ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
             def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
             addConnection(connection, connectionFactory, request)
@@ -86,7 +84,7 @@ class SpringSocialConnectController {
     private String handleSignIn(connection, session) {
         String localUserId = usersConnectionRepository.findUserIdWithConnection(connection)
         if (localUserId == null) {
-            def signInAttempt = new ProviderSignInAttempt(connection, connectionFactoryLocatorProvider, connectionRepositoryProvider)
+            def signInAttempt = new ProviderSignInAttempt(connection, connectionFactoryLocator, connectionRepository)
             session.setAttribute(ProviderSignInAttempt.SESSION_ATTRIBUTE, signInAttempt)
         }
         g.createLink(uri: SpringSocialUtils.config.postSignInUri)
