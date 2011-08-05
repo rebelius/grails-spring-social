@@ -46,24 +46,14 @@ class SpringSocialConnectController {
 
     def oauthCallback = {
         def providerId = params.providerId
-        def oauth_token = params.oauth_token
-        def code = params.code
-        def nativeWebRequest = new GrailsWebRequest(request, response, servletContext)
         def uriRedirect = session.ss_oauth_redirect_callback
         def config = SpringSocialUtils.config.get(providerId)
         def uri = uriRedirect ?: config.page.connectedHome
+        def connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId)
+        def connection = webSupport.completeConnection(connectionFactory, new GrailsWebRequest(request, response, servletContext))
 
-        if (oauth_token) {
-            OAuth1ConnectionFactory<?> connectionFactory = (OAuth1ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
-            def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
-            addConnection(connection, connectionFactory, request)
-            redirect(uri: uri)
-        } else if (code) {
-            OAuth2ConnectionFactory<?> connectionFactory = (OAuth2ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
-            def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
-            addConnection(connection, connectionFactory, request)
-            render "OAuth2ConnectionFactory"
-        }
+        addConnection(connection, connectionFactory, request)
+        redirect(uri: uri)
     }
 
     def disconnect = {
