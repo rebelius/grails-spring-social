@@ -30,7 +30,7 @@ import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository
 import org.springframework.social.connect.support.ConnectionFactoryRegistry
 
 @Configuration
-class ApisConfig {
+class SpringSecurityCoreConfig {
     @Inject
     DataSource dataSource
 
