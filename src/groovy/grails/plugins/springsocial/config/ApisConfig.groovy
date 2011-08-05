@@ -14,33 +14,53 @@
  */
 package grails.plugins.springsocial.config
 
+import javax.inject.Inject
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.context.annotation.ScopedProxyMode
-import org.springframework.social.connect.Connection
+import org.springframework.social.connect.ConnectionFactoryLocator
 import org.springframework.social.connect.ConnectionRepository
-import org.springframework.social.facebook.api.Facebook
-import org.springframework.social.facebook.api.impl.FacebookTemplate
-import org.springframework.social.twitter.api.Twitter
-import org.springframework.social.twitter.api.impl.TwitterTemplate
+import org.springframework.social.connect.support.ConnectionFactoryRegistry
+import org.springframework.social.connect.UsersConnectionRepository
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.crypto.encrypt.Encryptors
+import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository
+import javax.sql.DataSource
+import org.springframework.security.crypto.encrypt.TextEncryptor
+import org.springframework.social.twitter.connect.TwitterConnectionFactory
 
 @Configuration
 class ApisConfig {
+    @Inject
+    DataSource dataSource
 
     @Bean
-    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
-    public Twitter twitter(ConnectionRepository connectionRepository) {
-        Connection<Twitter> twitter = connectionRepository().findPrimaryConnection(Twitter.class);
-        return twitter != null ? twitter.getApi() : new TwitterTemplate();
+    public TextEncryptor textEncryptor() {
+        Encryptors.noOpText()
+    }
+
+    @Bean
+    @Scope(value = "singleton")
+    public ConnectionFactoryLocator connectionFactoryLocator() {
+        def registry = new ConnectionFactoryRegistry()
+        //registry.addConnectionFactory(new TwitterConnectionFactory("mcBxpCFGwS9gW5NbF4AZZg", "q91y7MQwcQVbugnrMXlc83YupMjZzuEvM5o0XIiSupI"))
+        registry
+    }
+
+    @Bean
+    @Scope(value = "singleton", proxyMode = ScopedProxyMode.INTERFACES)
+    UsersConnectionRepository usersConnectionRepository() {
+        new JdbcUsersConnectionRepository(dataSource, connectionFactoryLocator(), Encryptors.noOpText())
     }
 
     @Bean
     @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
-    Facebook facebook(ConnectionRepository connectionRepository) {
-        Connection<Facebook> facebook = connectionRepository().findPrimaryConnection(Facebook.class);
-        return facebook != null ? facebook.getApi() : new FacebookTemplate();
+    ConnectionRepository connectionRepository() {
+        def authentication = SecurityContextHolder.getContext().getAuthentication()
+        if (!authentication) {
+            throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in")
+        }
+        usersConnectionRepository().createConnectionRepository(authentication.getName())
     }
-
 }
-

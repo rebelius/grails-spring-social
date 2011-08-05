@@ -14,28 +14,5 @@
  */
 package grails.plugins.springsocial.config
 
-import javax.inject.Inject
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Scope
-import org.springframework.context.annotation.ScopedProxyMode
-import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.social.connect.ConnectionRepository
-import org.springframework.social.connect.UsersConnectionRepository
-
-@Configuration
 class ConnectionRepositoryConfig {
-
-    @Inject
-    private UsersConnectionRepository usersConnectionRepository;
-
-    @Bean
-    @Scope(value = "request", proxyMode = ScopedProxyMode.INTERFACES)
-    ConnectionRepository connectionRepository() {
-        def authentication = SecurityContextHolder.getContext().getAuthentication()
-        if (!authentication) {
-            throw new IllegalStateException("Unable to get a ConnectionRepository: no user signed in")
-        }
-        usersConnectionRepository.createConnectionRepository(authentication.getName())
-    }
 }

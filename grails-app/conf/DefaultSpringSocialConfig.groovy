@@ -20,7 +20,8 @@ springsocial {
     ss_oauth_return_url = "/"
 
     twitter.page.connect = "/springsocial/twitter/connect"
-    twitter.page.connectedHome = "/springsocial/twitter/index"
+    twitter.page.connectedHome = "/springSocialTwitter/index"
+    twitter.page.profile = "/springSocialTwitter/index"
     twitter.page.timeLine = "/springsocial/twitter/timeline"
     twitter.page.profiles = "/springsocial/twitter/profiles"
     twitter.page.directMessages = "/springsocial/twitter/messages"

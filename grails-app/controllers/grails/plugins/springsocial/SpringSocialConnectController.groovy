@@ -22,6 +22,8 @@ import org.springframework.social.oauth1.OAuthToken
 import org.springframework.web.context.request.RequestAttributes
 import org.springframework.social.connect.support.OAuth2ConnectionFactory
 import org.springframework.social.connect.support.OAuth1ConnectionFactory
+import javax.servlet.http.HttpServletRequest
+import grails.plugins.springsocial.connect.web.GrailsConnectSupport
 
 class SpringSocialConnectController {
 
@@ -31,15 +33,16 @@ class SpringSocialConnectController {
     def connectionFactoryLocator
     def connectionRepository
 
-    def webSupport = new ConnectSupport();
+    def webSupport = new GrailsConnectSupport()
 
     static allowedMethods = [connect: 'POST', oauthCallback: 'GET', disconnect: 'DELETE']
 
     def connect = {
+        webSupport.home = g.createLink(uri: "/", absolute: true)
         def providerId = params.providerId
         def connectionFactory = connectionFactoryLocator.getConnectionFactory(providerId)
-        def url = webSupport.buildOAuthUrl(connectionFactory, new GrailsWebRequest(request, response, servletContext))
-        println "redirecting to: ${url}"
+        def nativeWebRequest = new GrailsWebRequest(request, response, servletContext)
+        def url = webSupport.buildOAuthUrl(connectionFactory, nativeWebRequest)
         redirect url: url
     }
 
@@ -53,9 +56,11 @@ class SpringSocialConnectController {
             OAuth1ConnectionFactory<?> connectionFactory = (OAuth1ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
             def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
             addConnection(connection, connectionFactory, request)
-            render "OAuth1ConnectionFactory"
-
+            def config =  SpringSocialUtils.config.get(providerId)
+            def uri = config.page.connectedHome
+            redirect(uri: uri)
         } else if (code) {
+            println "Usanso code ${code}"
             OAuth2ConnectionFactory<?> connectionFactory = (OAuth2ConnectionFactory<?>) connectionFactoryLocator.getConnectionFactory(providerId)
             def connection = webSupport.completeConnection(connectionFactory, nativeWebRequest)
             addConnection(connection, connectionFactory, request)
@@ -65,7 +70,7 @@ class SpringSocialConnectController {
 
     def disconnect = {
         def providerId = params.providerId
-        getConnectionRepository().removeConnectionsToProvider(providerId)
+        connectionRepository.removeConnectionsToProvider(providerId)
         redirect(uri: SpringSocialUtils.config.postDisconnectUri)
     }
 

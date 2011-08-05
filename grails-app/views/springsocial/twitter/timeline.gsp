@@ -30,7 +30,6 @@
 
 <ul class="choices">
     <li><g:link controller="springSocialTwitter" action="timeline" id="home">Home Timeline</g:link></li>
-    <li><g:link controller="springSocialTwitter" action="timeline" id="friends">Friends Timeline</g:link></li>
     <li><g:link controller="springSocialTwitter" action="timeline" id="user">User Timeline</g:link></li>
     <li><g:link controller="springSocialTwitter" action="timeline" id="public">Public Timeline</g:link></li>
     <li><g:link controller="springSocialTwitter" action="timeline" id="mentions">Mentions</g:link></li>

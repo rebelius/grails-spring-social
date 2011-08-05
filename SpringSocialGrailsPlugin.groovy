@@ -1,10 +1,19 @@
+/* Copyright 2011 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 import grails.plugins.springsocial.SpringSecuritySigninService
-import grails.plugins.springsocial.SpringSocialUtils
-import org.springframework.security.crypto.encrypt.Encryptors
-import org.springframework.social.connect.jdbc.JdbcUsersConnectionRepository
-import org.springframework.social.connect.support.ConnectionFactoryRegistry
-import org.springframework.social.facebook.connect.FacebookConnectionFactory
-import org.springframework.social.twitter.connect.TwitterConnectionFactory
 
 class SpringSocialGrailsPlugin {
     // the plugin version
@@ -35,45 +44,10 @@ Spring Social plugin.
     }
 
     def doWithSpring = {
-        //
-        //def tripit = new TripItConnectionFactory(config.tripit.consumerKey, config.tripit.consumerSecret)
-        def config = SpringSocialUtils.config
-        def twitterCK = config.twitter.consumerKey ?: ''
-        def twitterCS = config.twitter.consumerSecret
-        def twitterCF
-
-        connectionFactoryLocator(ConnectionFactoryRegistry) {
-        }
-
-        def cfl = ref("connectionFactoryLocator")
-
-        if (twitterCK) {
-            println "[SpringSocial] INFO: Configuring Twitter"
-            twitterCF = new TwitterConnectionFactory(twitterCK, twitterCS)
-            cfl.addConnectionFactory(twitterCF)
-        } else {
-            println "[SpringSocial] WARNING: Twitter not configured"
-        }
-
-        def facebookAppId = config.facebook.appId ?: ''
-        def facebookAS = config.facebook.appSecret
-
-        if (facebookAppId) {
-            println "[SpringSocial] INFO: Configuring Facebook"
-            def facebookCF = new FacebookConnectionFactory(facebookAppId, facebookAS)
-            cfl.addConnectionFactory(facebookCF)
-        } else {
-            println "[SpringSocial] WARNING: Facebook not configured"
-        }
+        println "Configuring SpringSocial Core"
 
         xmlns context: "http://www.springframework.org/schema/context"
         context.'component-scan'('base-package': "grails.plugins.springsocial.config")
-
-        textEncryptor(Encryptors) { bean ->
-            bean.factoryMethod = "noOpText"
-        }
-
-        usersConnectionRepository(JdbcUsersConnectionRepository, ref('dataSource'), ref('connectionFactoryLocator'), ref('textEncryptor'))
 
         signInService(SpringSecuritySigninService)
     }
