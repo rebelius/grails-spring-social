@@ -57,18 +57,38 @@ class SpringSocialConnectController {
     }
 
     def disconnect = {
-        def providerId = params.providerId
-        connectionRepository.removeConnectionsToProvider(providerId)
-        redirect(uri: SpringSocialUtils.config.postDisconnectUri)
+      def providerId = session.providerId
+    	def providerUserId = session.providerUserId
+		ConnectionKey ck = new ConnectionKey(providerId,providerUserId);
+		connectionRepository.removeConnection(ck);
+		session.providerId=null
+		session.providerUserId=null
+		redirect(uri: SpringSocialUtils.config.postDisconnectUri)
     }
 
     private void addConnection(connection, connectionFactory, request) {
         try {
-            connectionRepository.addConnection(connection)
-            //postConnect(connectionFactory, connection, request)
-        } catch (DuplicateConnectionException e) {
-            request.setAttribute(DUPLICATE_CONNECTION_ATTRIBUTE, e, RequestAttributes.SCOPE_SESSION);
-        }
+    		def provId=connection.getKey().getProviderId()
+			def provUsrId=connection.getKey().getProviderUserId()
+			session.providerId=provId
+			session.providerUserId=provUsrId
+			ConnectionKey ck = new ConnectionKey(provId,provUsrId);
+			def ufd =UserConnection.findByProviderIdAndProviderUserId(provId,provUsrId)
+			if (ufd){
+				try{
+					connectionRepository.getConnection(ck)
+				
+				}catch (Exception e){
+					connectionRepository.addConnection(connection)
+				}
+			}else{
+					connectionRepository.addConnection(connection)
+			
+			}
+			//postConnect(connectionFactory, connection, request)
+		} catch (DuplicateConnectionException e) {
+			request.setAttribute(DUPLICATE_CONNECTION_ATTRIBUTE, e, RequestAttributes.SCOPE_SESSION);
+		}
     }
 
     private String handleSignIn(connection, session) {
