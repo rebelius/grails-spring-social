@@ -41,12 +41,14 @@ class UserConnection implements Serializable {
         rank nullable: false
         expireTime nullable: true
     }
-
+    def beforeInsert = {
+		println "beforeinsert"
+	}
     static mapping = {
         table "UserConnection"
         version false
 
-        id composite:['userId', 'providerId', 'providerUserId']
+        id composite:['providerId', 'providerUserId']
 
         userId column:'userId'
         providerId column:'providerId'
